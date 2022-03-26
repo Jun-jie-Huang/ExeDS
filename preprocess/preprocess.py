@@ -217,23 +217,23 @@ def get_simple_input_output(item, args):
     # contexts = [item['context_dist{}'.format(i)] for i in reversed(range(1, args.context_range+1)) if item['context_dist{}'.format(i)] and item['context_dist{}'.format(i)]['str'] and item['context_dist{}'.format(i)]['token']]
     if 'nonl' in args.split:
         contexts = [item['context_dist{}'.format(i)] for i in reversed(range(2, args.context_range + 1)) if
-                    item['context_dist{}'.format(i)].get('str') and item['context_dist{}'.format(i)].get('token')]
+                    item['context_dist{}'.format(i)].get('ori') and item['context_dist{}'.format(i)].get('ori_token')]
     else:
         contexts = [item['context_dist{}'.format(i)] for i in reversed(range(1, args.context_range + 1)) if
-                    item['context_dist{}'.format(i)].get('str') and item['context_dist{}'.format(i)].get('token')]
+                    item['context_dist{}'.format(i)].get('ori') and item['context_dist{}'.format(i)].get('ori_token')]
     # print(len(contexts))
     # print(contexts)
     inputs = []
     for context_i in contexts:
         if context_i['cell_type'] == 'code':
             if args.token_type == 'str':
-                code_toks = context_i['str'].split(' ')[:args.max_code_cell_tokens]
+                code_toks = context_i['ori'].split(' ')[:args.max_code_cell_tokens]
             else:
-                code_toks = context_i['token'][:args.max_code_cell_tokens]
+                code_toks = context_i['ori_token'][:args.max_code_cell_tokens]
             inputs.extend(['#', 'CODE', '\n'] + code_toks)
         else:
             # markdown
-            inputs.extend(['#', 'MARKDOWN', '\n'] + context_i['token'][:args.max_md_cell_tokens])
+            inputs.extend(['#', 'MARKDOWN', '\n'] + context_i['ori_token'][:args.max_md_cell_tokens])
     inputs_str = ' '.join(inputs)
     inputs_str = inputs_str.replace('\'jupyter_string\'', 'madeupword0001')
     inputs_str = inputs_str.replace('jupyter_string', 'madeupword0001')
@@ -411,7 +411,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # parser.add_argument('--split', default='test', type=str, choices=['train', 'dev', 'test'])
-    parser.add_argument('--split', default='test', type=str, choices=['train', 'dev', 'test', 'dev-nonl', 'test-nonl'])
+    parser.add_argument('--split', default='test', type=str, choices=['train', 'dev', 'test', 'dev2k', 'dev-nonl', 'test-nonl'])
     parser.add_argument('--not_add_table', action='store_true')
     parser.add_argument('--madeupword_flag', action='store_true', default=True)
     parser.add_argument('--only_executable', action='store_true')

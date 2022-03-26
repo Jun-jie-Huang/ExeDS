@@ -70,4 +70,3 @@ fairseq-preprocess -s "src" -t "tgt" --srcdict ${MODEL_DICT} --joined-dictionary
 
 
 
-

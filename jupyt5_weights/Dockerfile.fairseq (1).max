@@ -1,0 +1,63 @@
+FROM nvcr.io/nvidia/pytorch:20.11-py3
+
+RUN apt-get update && apt-get install -y --allow-downgrades --allow-change-held-packages --no-install-recommends \
+        curl \
+        vim \
+        wget \
+        screen \
+        tmux \
+        rsync \
+        grsync \
+        htop \
+        zsh
+
+ENV MOFED_VERSION=5.0-1.0.0.0
+
+ENV MOFED_OS=ubuntu18.04
+
+# http://content.mellanox.com/ofed/MLNX_OFED-5.0-1.0.0.0/MLNX_OFED_LINUX-5.0-1.0.0.0-ubuntu18.04-x86_64.tgz
+
+ENV MOFED_FILENAME=MLNX_OFED_LINUX-${MOFED_VERSION}-${MOFED_OS}-x86_64
+
+RUN curl -fSsL https://www.mellanox.com/downloads/ofed/MLNX_OFED-${MOFED_VERSION}/${MOFED_FILENAME}.tgz | tar -zxpf -
+
+RUN cd MLNX_OFED_LINUX-${MOFED_VERSION}-${MOFED_OS}-x86_64 && apt-get update && apt-get -y install udev libcap2 && ./mlnxofedinstall --force --user-space-only --without-fw-update && cd .. && rm -r MLNX_OFED_LINUX-${MOFED_VERSION}-${MOFED_OS}-x86_64
+
+# Allow OpenSSH to talk to containers without asking for confirmation
+RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new && \
+    echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
+    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
+
+RUN ldconfig /usr/local/cuda/lib64/stubs && \
+    pip install --no-cache-dir future typing numpy &&  \
+    pip install --no-cache-dir tensorboardX>=2.0 && \
+    pip install --no-cache-dir tensorboard && \
+    pip install --no-cache-dir scikit-learn && \
+    pip install --no-cache-dir shyaml && \
+    pip install --no-cache-dir GitPython>=3.1.0 && \
+    pip install --no-cache-dir psutil>=5.7.0 && \
+    pip install --no-cache-dir GPUtil && \
+    pip install --no-cache-dir azureml-defaults && \
+    pip install --no-cache-dir json-log-plots>=0.0.1 && \
+    pip install --no-cache-dir PyYAML>=5.1.2 && \
+    pip install --no-cache-dir matplotlib && \
+    pip install --no-cache-dir pythonparser && \
+    pip install --no-cache-dir pathos && \
+    pip install --no-cache-dir simplejson && \
+    pip install --no-cache-dir protobuf>=3.4.0 && \
+    pip install --no-cache-dir attrs>=19.1.0 && \
+    pip install --no-cache-dir sentencepiece>=0.1.85 && \
+    pip install --no-cache-dir attrs>=19.1.0 && \
+    pip install --no-cache-dir fire>=0.1.3 && \
+    pip install --no-cache-dir tqdm>=4.31.1 && \
+    pip install --no-cache-dir opencensus && \
+    pip install --no-cache-dir docopt && \
+    pip install --no-cache-dir dpu_utils>=0.2.9 && \
+    pip install --no-cache-dir typing-extensions && \
+    pip install --no-cache-dir torchtext && \
+    pip install --no-cache-dir six && \
+    pip install --no-cache-dir configargparse && \
+    pip install --no-cache-dir rouge>=0.3.2 && \
+    pip install --no-cache-dir transformers>=3.3.1
+
+RUN git clone https://github.com/colinclement/fairseq && cd fairseq && pip install --editable .
