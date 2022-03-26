@@ -180,6 +180,7 @@ $5: Number of GPUs (8 or 16)
 #### 4 Test execution
 
 ```
+cd codegpt/
 cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ microsoft/CodeGPT-small-py prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900 30 16
 ```
@@ -231,6 +232,7 @@ The parameters are the same with the training step
 #### 4.5 Test execution
 
 ```
+cd gpt_neo/
 cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ EleutherAI/gpt-neo-125M prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900 10 16
 ```
