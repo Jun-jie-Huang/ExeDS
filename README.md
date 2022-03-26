@@ -134,7 +134,7 @@ The parameter `--do_gptneo` controls whether to prepare data for GPT-neo series.
 
 #### 3. Training and Evaluation 
 
-Please refer to each Section for more details.
+Please refer to each Section (3, 4, 5) for more details.
 
 ## 3. Baseline CodeGPT and CodeGPT-adapted
 
@@ -180,6 +180,7 @@ $5: Number of GPUs (8 or 16)
 #### 4 Test execution
 
 ```
+cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ microsoft/CodeGPT-small-py prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900 30 16
 ```
 
@@ -230,6 +231,7 @@ The parameters are the same with the training step
 #### 4.5 Test execution
 
 ```
+cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ EleutherAI/gpt-neo-125M prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900 10 16
 ```
 
@@ -239,20 +241,23 @@ The parameters are the same with the training step
 
 #### 5.1 Environment:
 
+Pull docker from: `czy00/fairseq:pytorch1_10`, then use following command to install necessary packages: 
+
 ```
-cd pymt5/
-czy00/fairseq:pytorch1_10
+pip install portalocker==2.0.0
 pip install tree_sitter==0.19.0
 pip install rouge
 ```
 
 #### 5.2 Preprocessing for JuPyT5 and PyMT5
 
-Following the Section 2.2 for preprocessing details.
+Following the Section 2.2 for preprocessing details. 
+
+Download the checkpoint to initialize JuPyT5 and PyMT5 with [this link](). Then move to `.pt` files to `./jupyt5_weights`.
 
 TODO: add 4.5G checkpoint of JuPyT5 and PyMT5 
 
-After preprocessing with `preprocess.py` , run the following command to prepare for fairseq input and output.
+After preprocessing with `preprocess.py` , run the following command to prepare for fairseq input and output. (Modify the `DATADIR` if you use another setting of preprocessing)
 
 ```
 cd ./jupyt5
@@ -289,12 +294,11 @@ $3: path to the preprocessed data
 
 ```
 cd ./jupyt5
+cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ jupyt5 prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900
 ```
 
 The parameters are the same with the training step
-
-
 
 # Cite 
 
