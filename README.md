@@ -22,7 +22,7 @@ pip install rouge
 
 #### 1.1 Download ExeDS data 
 
-First, you can download the whole dataset, including ExeDS testset and training/validation set from this [link](https://drive.google.com/drive/folders/13qBLHOAKJLN1RVIbFNfs4WJRhrS3id4O?usp=sharing). We do not directly put them in this repo due to the file limit of GitHub. Download all the files and move them to `./dataset`. 
+First, you can download the whole dataset, including ExeDS testset and training/validation set from this [link](https://drive.google.com/drive/folders/1gX07Uxawj5ch7mvlFKxlDTzAsopZPIxn?usp=sharing). We do not directly put them in this repo due to the file limit of GitHub. Download all the files and move them to `./dataset`. 
 
 The raw notebooks should be found in `./dataset/ExeDS_notebooks/`, each with its data dependencies used when executing. 
 
@@ -49,7 +49,7 @@ The generations for next step evaluation should be written to a `json` file with
 ]
 ```
 
-You can also use our scripts in Chapter 2, 3, 4 to generate code with the baseline models.
+You can also use our scripts in Section 2, 3, 4 to generate code with the baseline models.
 
 #### 1.3 Evaluate
 
@@ -127,7 +127,7 @@ The parameter `--do_gptneo` controls whether to prepare data for GPT-neo series.
 
 #### 3. Training and Evaluation 
 
-Please refer to each Section (3, 4, 5) for more details.
+Please refer to each Section 3 and 4  for details.
 
 ## 3. Baseline CodeGPT and CodeGPT-adapted
 
