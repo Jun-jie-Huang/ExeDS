@@ -1,5 +1,5 @@
 # ExeDS
-Welcome! This repo contains the data and source code for XXX paper **Execution-based Evaluation for Data Science Code Generation Models**. 
+Welcome! This repo contains the data and source code for paper **Execution-based Evaluation for Data Science Code Generation Models**. 
 
 Automatically generating code is beneficial to the productivity of data science practitioners. Future progress towards this goal requires systems to generate executable code and measure execution correctness. In this repo we introduce ExeDS, a data science code generation dataset for execution evaluation, which contains 534 problems with execution outputs from Jupyter Notebooks, together with 123K examples for training and validation. ExeDS leverages three novel execution metrics to evaluate the executability and output correctness of code, including no error rate, execution exact match, and execution F1 score. We hope our dataset and execution metrics could draw more attention to the execution correctness of code and result in significant advances in code generation! 
 
@@ -22,18 +22,13 @@ pip install rouge
 
 #### 1.1 Download ExeDS data 
 
-First, you can download the whole dataset, including ExeDS testset and training/validation set from this [](link). (TODO) We do not directly put them in this repo due to the file limit of GitHub. Use the following scripts to download and unzip:
+First, you can download the whole dataset, including ExeDS testset and training/validation set from this [link](https://drive.google.com/drive/folders/13qBLHOAKJLN1RVIbFNfs4WJRhrS3id4O?usp=sharing). We do not directly put them in this repo due to the file limit of GitHub. Download all the files and move them to `./dataset`. 
 
-```
-wget xxx TODO
-unzip xxx
-```
-
-The raw notebooks can be found in `./dataset/ExeDS_notebooks/`, each with its data dependencies used when executing. 
+The raw notebooks should be found in `./dataset/ExeDS_notebooks/`, each with its data dependencies used when executing. 
 
 The csv file `answers.csv` contains the answers for ExeDS testset. Each row contains information of notebook index, row index, ground truth execution output, ground truth code snippet.
 
-(!You don't need to download other raw notebooks if you just want to use ExeDS) All the 13525 notebooks we use in our work are from the JuiCe dataset ([paper link](https://arxiv.org/pdf/1910.02216.pdf)). The notebooks used in our paper together with manually crawled data dependencies can be download through this [](link). TODO: add raw notebooks link
+You don't need to download other raw notebooks if you just want to use ExeDS. All the 13525 notebooks we use in our work are from the JuiCe dataset ([paper link](https://arxiv.org/pdf/1910.02216.pdf)). You can find the original notebooks from [here](https://github.com/rajasagashe/JuICe).
 
 #### 1.2 Generate code snippet
 
@@ -86,9 +81,7 @@ python evaluate_execution.py \
 
 #### 1. Data Preparation
 
-Step 1: download the data from xxx as described in Section xxx
-
-Step 2: download the initial checkpoint of PyMT5 and JuPyT5 from xxx and move the `.ckpt` files to `jupyt5_weights`
+Download the data from xxx as described in Section xxx
 
 #### 2. Preprocessing
 
@@ -191,9 +184,10 @@ The parameters are the same with the training step
 
 #### 4.1 Environment:
 
+Pull docker from Docker Hub: `ranpox/pytorch:1.10.0-cuda10.2-apex`. Then
+
 ```
-cd gptneo/
-TODO: docker: ranpox/pytorch:1.10.0-cuda10.2-apex
+cd gptneo/ 
 pip install -r requirements.txt
 pip install tree_sitter==0.19.0
 pip install rouge
@@ -235,69 +229,6 @@ The parameters are the same with the training step
 cd gpt_neo/
 cp ../evaluation/* ./ -r
 bash evaluate_execution.sh ../ EleutherAI/gpt-neo-125M prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900 10 16
-```
-
-The parameters are the same with the training step
-
-## 5. Baseline PyMT5 and JuPyT5
-
-#### 5.1 Environment:
-
-Pull docker from: `czy00/fairseq:pytorch1_10`, then use following command to install necessary packages: 
-
-```
-pip install portalocker==2.0.0
-pip install tree_sitter==0.19.0
-pip install rouge
-```
-
-#### 5.2 Preprocessing for JuPyT5 and PyMT5
-
-Following the Section 2.2 for preprocessing details. 
-
-Download the checkpoint to initialize JuPyT5 and PyMT5 with [this link](). Then move to `.pt` files to `./jupyt5_weights`.
-
-TODO: add 4.5G checkpoint of JuPyT5 and PyMT5 
-
-After preprocessing with `preprocess.py` , run the following command to prepare for fairseq input and output. (Modify the `DATADIR` if you use another setting of preprocessing)
-
-```
-cd ./jupyt5
-MODEL_DICT="../jupyt5_weights/dict.src.txt"
-DATADIR="../preprocessed_data/prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900/fairseq_tokenization"
-fairseq-preprocess -s "src" -t "tgt" \
-     --srcdict ${MODEL_DICT} \
-     --joined-dictionary \
-     --destdir ${DATADIR}/normal \
-     --trainpref "${DATADIR}/python.train_nl_to_code" \
-     --validpref "${DATADIR}/python.dev_nl_to_code" \
-     --testpref "${DATADIR}/python.test_nl_to_code" --workers 24
-```
-
-#### 5.3 Training and generate code for testset
-
-Use the following command:
-
-```
-cd ./jupyt5
-bash traineval.sh ../ jupyt5 prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900
-bash generate.sh ../ jupyt5 prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900
-```
-
-The parameters in the above command denote:
-
-```
-$1: path to the root dir
-$2: checkpoint used to intialize the weights, you can use "jupyt5", or "pymt5"
-$3: path to the preprocessed data
-```
-
-#### 5.4 Test execution
-
-```
-cd ./jupyt5
-cp ../evaluation/* ./ -r
-bash evaluate_execution.sh ../ jupyt5 prepro_addTab-df_madeup_token_range3_lineLen1-25_c200m200a900
 ```
 
 The parameters are the same with the training step
