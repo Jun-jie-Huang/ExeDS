@@ -77,23 +77,12 @@ def decode(hyp):
     return hyp
 
 
-# def decode_string(hyp, token=True):
-#     if not token:
-#         hyp = ''.join(hyp.split(' '))
-#     for s, t in post_replace.items():
-#         hyp = hyp.replace(s, t)
-#     hyp = remove_madeupword(hyp)
-#     return hyp
-
-
 def decode_string(hyp, token=True):
     if not token:
         hyp = ''.join(hyp.split(' '))
-    hyp=''.join(hyp.split(' '))
     for s, t in post_replace.items():
         hyp = hyp.replace(s, t)
     hyp = remove_madeupword(hyp)
-    hyp = re.sub(' +', ' ', hyp)
     return hyp
 
 
@@ -371,11 +360,18 @@ if __name__ == "__main__":
     translations_tok, reference_text_tok = [], []
     result = read_json(args.generation_dir + '/split_generation_results.json')
     for item in result:
+        if len(''.join(decode_string(item['generation'], token=False).split(' '))) == 0 or len(''.join(decode_string(item['generation'], token=True).split(' '))) == 0:
+            continue
         translations_ori.append(decode_string(item['generation'], token=False))
         reference_text_ori.append(decode_string(item['target'], token=False))
         translations_tok.append(decode_string(item['generation'], token=True))
         reference_text_tok.append(decode_string(item['target'], token=True))
 
+    print("$$$$$$$$$$$$$$$$$$")
+    print("{},{},{},{},".format(len([item for item in translations_ori if len(''.join(item.split(' ')))==0]),
+                                len([item for item in reference_text_ori if len(''.join(item.split(' ')))==0]),
+                                len([item for item in translations_tok if len(''.join(item.split(' ')))==0]),
+                                len([item for item in reference_text_tok if len(''.join(item.split(' ')))==0]), ))
     print("$$$$$$$$$$$$$$$$$$")
     print("All data ori: {}".format(len(reference_text_ori)))
     results, combined_list = get_metrics_devdiv(reference_text_ori, translations_ori)

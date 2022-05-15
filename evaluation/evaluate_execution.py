@@ -71,6 +71,7 @@ def remove_madeupword(code):
 
 
 def decode_string(hyp):
+    hyp=''.join(hyp.split(' '))
     if len(hyp) == 0:
         return ''
     if hyp[-1] == '\n':
@@ -78,7 +79,18 @@ def decode_string(hyp):
     for s, t in post_replace.items():
         hyp = hyp.replace(s, t)
     hyp = remove_madeupword(hyp)
+    hyp = re.sub(' +', ' ', hyp)
     return hyp
+
+# def decode_string(hyp):
+#     if len(hyp) == 0:
+#         return ''
+#     if hyp[-1] == '\n':
+#         hyp = hyp[:-1]
+#     for s, t in post_replace.items():
+#         hyp = hyp.replace(s, t)
+#     hyp = remove_madeupword(hyp)
+#     return hyp
 
 
 indent_template1 = re.compile(r' {4}(.+)')
@@ -541,23 +553,44 @@ csv_file = {item[0].split('.')[0] + 'R{}'.format(item[1]): item for item in csv_
 # process data, create new notebooks and save index files
 if args.do_create_notebook:
     indexes = []
-    generation_idx = 0
-    for dataset_file in dataset_files:
+    # generation_idx = 0
+    # for dataset_file in dataset_files:
+    #     src_code = ''.join(dataset_file['code'].split(' '))
+    #     try:
+    #         generation_code = merge_generation_code(generations[generation_idx]['generation'])
+    #     except IndexError:
+    #         continue
+    #     # generation_code = merge_generation_code(generations[generation_idx]['target'])
+    #     if ''.join(dataset_file['code'].split(' ')) != ''.join(generations[generation_idx]['target'].split(' ')):
+    #         print(generation_idx)
+    #         print(''.join(dataset_file['code'].split(' ')))
+    #         print(''.join(generations[generation_idx]['target'].split(' ')))
+    #         if 'norm.fit(data)' in ''.join(dataset_file['code'].split(' ')) \
+    #                 and 'norm.fit(data)' in ''.join(generations[generation_idx]['target'].split(' ')):
+    #             generation_idx += 1
+    #             print(generation_idx)
+    #         continue
+    #     path_in = os.path.join(args.data_dir, dataset_file['file'])
+    #     path_out = os.path.join(args.path_save_notebooks, dataset_file['file']+'R{}'.format(dataset_file['row_id']))
+    #     write_one_notebook(args, path_in, path_out, dataset_file['file'], dataset_file['row_id'], generation_code)
+    #     generation_idx += 1
+    generation_map = {''.join(generations[idx]['target'].split(' ')): idx for idx in range(len(generations))}
+    non_map_items = 0
+    for idx, dataset_file in enumerate(dataset_files):
         src_code = ''.join(dataset_file['code'].split(' '))
-        try:
-            generation_code = merge_generation_code(generations[generation_idx]['generation'])
-        except IndexError:
-            continue
-        # generation_code = merge_generation_code(generations[generation_idx]['target'])
-        if ''.join(dataset_file['code'].split(' ')) != ''.join(generations[generation_idx]['target'].split(' ')):
-            print(generation_idx)
-            print(''.join(dataset_file['code'].split(' ')))
-            print(''.join(generations[generation_idx]['target'].split(' ')))
-            continue
+        if src_code in generation_map:
+            generation_item = generations[generation_map[src_code]]
+            dataset_files[idx]['generation'] = merge_generation_code(generation_item['generation'])
+        else:
+            dataset_files[idx]['generation'] = ""
+            non_map_items+=1
+    print("we have {} valid generations: ".format(len(dataset_files)-non_map_items))
+
+    for dataset_file in dataset_files:
+        generation_code = dataset_file['generation']
         path_in = os.path.join(args.data_dir, dataset_file['file'])
         path_out = os.path.join(args.path_save_notebooks, dataset_file['file']+'R{}'.format(dataset_file['row_id']))
         write_one_notebook(args, path_in, path_out, dataset_file['file'], dataset_file['row_id'], generation_code)
-        generation_idx += 1
 
         item_csv = csv_file[dataset_file['file'] + 'R{}'.format(dataset_file['row_id'])]
         this_index = {'idx': len(indexes),
@@ -586,25 +619,37 @@ if args.do_run:
 if args.do_evaluate:
     # indexes = read_json(args.path_index)
     indexes = []
-    generation_idx = 0
+    # generation_idx = 0
+    # for dataset_file in dataset_files:
+    #     try:
+    #         if ''.join(dataset_file['code'].split(' ')) != ''.join(generations[generation_idx]['target'].split(' ')):
+    #             print(generation_idx)
+    #             print(''.join(dataset_file['code'].split(' ')))
+    #             print(''.join(generations[generation_idx]['target'].split(' ')))
+    #             continue
+    #     except IndexError:
+    #         continue
+    #     generation_idx += 1
+    generation_map = {''.join(generations[idx]['target'].split(' ')): idx for idx in range(len(generations))}
+    non_map_items = 0
+    for idx, dataset_file in enumerate(dataset_files):
+        src_code = ''.join(dataset_file['code'].split(' '))
+        if src_code in generation_map:
+            generation_item = generations[generation_map[src_code]]
+            dataset_files[idx]['generation'] = merge_generation_code(generation_item['generation'])
+        else:
+            dataset_files[idx]['generation'] = ""
+            non_map_items+=1
+    print("we have {} valid generations: ".format(len(dataset_files)-non_map_items))
     for dataset_file in dataset_files:
-        try:
-            if ''.join(dataset_file['code'].split(' ')) != ''.join(generations[generation_idx]['target'].split(' ')):
-                print(generation_idx)
-                print(''.join(dataset_file['code'].split(' ')))
-                print(''.join(generations[generation_idx]['target'].split(' ')))
-                continue
-        except IndexError:
-            continue
-        generation_idx += 1
         item_csv = csv_file[dataset_file['file'] + 'R{}'.format(dataset_file['row_id'])]
         this_index = {'idx': len(indexes),
                       'dir': dataset_file['file']+'R{}'.format(dataset_file['row_id']),
                       'nbid': dataset_file['file']+'R{}'.format(dataset_file['row_id']),
                       'row_id': dataset_file['row_id'],
-                      'answer_type': item_csv[23],
-                      'ans1': item_csv[15], 'ans2': item_csv[16], 'ans3': item_csv[17],
-                      'code1': item_csv[18], 'code2': item_csv[19], 'code3': item_csv[20],
+                      'answer_type': item_csv[9],
+                      'ans1': item_csv[2], 'ans2': item_csv[3], 'ans3': item_csv[4],
+                      'code1': item_csv[5], 'code2': item_csv[6], 'code3': item_csv[7],
                       }
         indexes.append(this_index)
     print("length of indexes: {}".format(len(indexes)))
@@ -624,7 +669,7 @@ if args.do_evaluate:
     results_errors = [this_index for this_index in all_output if this_index['output_type'] == 'error']
     error_counter = error_count(results_errors)
     print("### Execution Accuracy: \nCorrect\tF1 \tNoErrRate")
-    print("{}  \t{}  \t{}".format((100*sum([i['correct'] for i in all_results])/len(all_results), 2),
+    print("{}  \t{}  \t{}".format(round(100*sum([i['correct'] for i in all_results])/len(all_results), 2),
                                   round(100*sum([i['f1'] for i in all_results])/len(all_results), 2),
                                   round(100*(len(all_output)-len(results_errors))/len(all_output),2),))
     print(error_counter)
