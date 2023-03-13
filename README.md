@@ -238,7 +238,12 @@ The parameters are the same with the training step
 If you find this repo and paper helpful for you, please cite: 
 
 ```
-
+@article{huang2022execution,
+  title={Execution-based Evaluation for Data Science Code Generation Models},
+  author={Huang, Junjie and Wang, Chenglong and Zhang, Jipeng and Yan, Cong and Cui, Haotian and Inala, Jeevana Priya and Clement, Colin and Duan, Nan and Gao, Jianfeng},
+  journal={arXiv preprint arXiv:2211.09374},
+  year={2022}
+}
 ```
 
 If you use our dataset, please also consider to cite the original JuiCe dataset since our dataset is built upon JuiCe:
